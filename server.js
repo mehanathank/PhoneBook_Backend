@@ -1,26 +1,29 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
-const path = require("path");
-const contactRoutes = require("./backend/routes/contactRoutes");
+require('dotenv').config();
+const connectDB = require("./config/database");
+const contactRoutes = require("./routes/contactRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
+// Connect to MongoDB
+connectDB();
+
+// Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "build")));
 
-mongoose.connect("mongodb://localhost:27017/contactsdb")
-  .then(() => console.log("MongoDB connected"))
-  .catch(err => console.log(err));
-
-app.use("/api/contacts", contactRoutes);
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "build", "index.html"));
+// Test route
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'API is working!', timestamp: new Date() });
 });
 
-const PORT = 5000;
+// Routes
+app.use("/api/contacts", contactRoutes);
+app.use("/api/users", userRoutes);
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
